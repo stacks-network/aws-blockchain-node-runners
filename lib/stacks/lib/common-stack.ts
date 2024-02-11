@@ -3,15 +3,15 @@ import * as cdkConstructs from "constructs";
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as nag from "cdk-nag";
 
-export interface SolanaCommonStackProps extends cdk.StackProps {
+export interface StacksCommonStackProps extends cdk.StackProps {
 
 }
 
-export class SolanaCommonStack extends cdk.Stack {
+export class StacksCommonStack extends cdk.Stack {
     AWS_STACKNAME = cdk.Stack.of(this).stackName;
     AWS_ACCOUNT_ID = cdk.Stack.of(this).account;
 
-    constructor(scope: cdkConstructs.Construct, id: string, props: SolanaCommonStackProps) {
+    constructor(scope: cdkConstructs.Construct, id: string, props: StacksCommonStackProps) {
         super(scope, id, props);
 
         const region = cdk.Stack.of(this).region;
@@ -32,13 +32,13 @@ export class SolanaCommonStack extends cdk.Stack {
            }));
 
         instanceRole.addToPolicy(new iam.PolicyStatement({
-           resources: [`arn:aws:autoscaling:${region}:${this.AWS_ACCOUNT_ID}:autoScalingGroup:*:autoScalingGroupName/solana-*`],
+           resources: [`arn:aws:autoscaling:${region}:${this.AWS_ACCOUNT_ID}:autoScalingGroup:*:autoScalingGroupName/stacks-*`],
            actions: ["autoscaling:CompleteLifecycleAction"],
           }));
 
         new cdk.CfnOutput(this, "Instance Role ARN", {
             value: instanceRole.roleArn,
-            exportName: "SolanaNodeInstanceRoleArn",
+            exportName: "StacksNodeInstanceRoleArn",
         });
 
         /**

@@ -10,13 +10,13 @@ echo "ACCOUNTS_VOLUME_TYPE=${_ACCOUNTS_VOLUME_TYPE_}" >> /etc/environment
 echo "ACCOUNTS_VOLUME_SIZE=${_ACCOUNTS_VOLUME_SIZE_}" >> /etc/environment
 echo "DATA_VOLUME_TYPE=${_DATA_VOLUME_TYPE_}" >> /etc/environment
 echo "DATA_VOLUME_SIZE=${_DATA_VOLUME_SIZE_}" >> /etc/environment
-echo "SOLANA_VERSION=${_SOLANA_VERSION_}" >> /etc/environment
-echo "SOLANA_NODE_TYPE=${_SOLANA_NODE_TYPE_}" >> /etc/environment
+echo "STACKS_VERSION=${_STACKS_VERSION_}" >> /etc/environment
+echo "STACKS_NODE_TYPE=${_STACKS_NODE_TYPE_}" >> /etc/environment
 echo "NODE_IDENTITY_SECRET_ARN=${_NODE_IDENTITY_SECRET_ARN_}" >> /etc/environment
 echo "VOTE_ACCOUNT_SECRET_ARN=${_VOTE_ACCOUNT_SECRET_ARN_}" >> /etc/environment
 echo "AUTHORIZED_WITHDRAWER_ACCOUNT_SECRET_ARN=${_AUTHORIZED_WITHDRAWER_ACCOUNT_SECRET_ARN_}" >> /etc/environment
 echo "REGISTRATION_TRANSACTION_FUNDING_ACCOUNT_SECRET_ARN=${_REGISTRATION_TRANSACTION_FUNDING_ACCOUNT_SECRET_ARN_}" >> /etc/environment
-echo "SOLANA_CLUSTER=${_SOLANA_CLUSTER_}" >> /etc/environment
+echo "STACKS_CLUSTER=${_STACKS_CLUSTER_}" >> /etc/environment
 echo "LIFECYCLE_HOOK_NAME=${_LIFECYCLE_HOOK_NAME_}" >> /etc/environment
 echo "ASG_NAME=${_ASG_NAME_}" >> /etc/environment
 source /etc/environment
@@ -44,33 +44,33 @@ echo "Starting CloudWatch Agent"
 -a fetch-config -c file:/opt/aws/amazon-cloudwatch-agent/etc/custom-amazon-cloudwatch-agent.json -m ec2 -s
 systemctl status amazon-cloudwatch-agent
 
-case $SOLANA_CLUSTER in
+case $STACKS_CLUSTER in
   "mainnet-beta")
-    ENTRY_POINTS=" --entrypoint entrypoint.mainnet-beta.solana.com:8001 --entrypoint entrypoint2.mainnet-beta.solana.com:8001 --entrypoint entrypoint3.mainnet-beta.solana.com:8001 --entrypoint entrypoint4.mainnet-beta.solana.com:8001 --entrypoint entrypoint5.mainnet-beta.solana.com:8001"
+    ENTRY_POINTS=" --entrypoint entrypoint.mainnet-beta.stacks.com:8001 --entrypoint entrypoint2.mainnet-beta.stacks.com:8001 --entrypoint entrypoint3.mainnet-beta.stacks.com:8001 --entrypoint entrypoint4.mainnet-beta.stacks.com:8001 --entrypoint entrypoint5.mainnet-beta.stacks.com:8001"
     KNOWN_VALIDATORS=" --known-validator 7Np41oeYqPefeNQEHSv1UDhYrehxin3NStELsSKCT4K2 --known-validator GdnSyH3YtwcxFvQrVVJMm1JhTS4QVX7MFsX56uJLUfiZ --known-validator DE1bawNcRJB9rVm3buyMVfr8mBEoyyu73NBovf2oXJsJ --known-validator CakcnaRDHka2gXyfbEd2d3xsvkJkqsLw2akB3zsN1D2S"
-    SOLANA_METRICS_CONFIG="host=https://metrics.solana.com:8086,db=mainnet-beta,u=mainnet-beta_write,p=password"
+    STACKS_METRICS_CONFIG="host=https://metrics.stacks.com:8086,db=mainnet-beta,u=mainnet-beta_write,p=password"
     EXPECTED_GENESIS_HASH="5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d"
     ;;
   "testnet")
-    ENTRY_POINTS=" --entrypoint entrypoint.testnet.solana.com:8001 --entrypoint entrypoint2.testnet.solana.com:8001 --entrypoint entrypoint3.testnet.solana.com:8001"
+    ENTRY_POINTS=" --entrypoint entrypoint.testnet.stacks.com:8001 --entrypoint entrypoint2.testnet.stacks.com:8001 --entrypoint entrypoint3.testnet.stacks.com:8001"
     KNOWN_VALIDATORS=" --known-validator 5D1fNXzvv5NjV1ysLjirC4WY92RNsVH18vjmcszZd8on --known-validator dDzy5SR3AXdYWVqbDEkVFdvSPCtS9ihF5kJkHCtXoFs --known-validator Ft5fbkqNa76vnsjYNwjDZUXoTWpP7VYm3mtsaQckQADN --known-validator eoKpUABi59aT4rR9HGS3LcMecfut9x7zJyodWWP43YQ --known-validator 9QxCLckBiJc783jnMvXZubK4wH86Eqqvashtrwvcsgkv"
-    SOLANA_METRICS_CONFIG="host=https://metrics.solana.com:8086,db=tds,u=testnet_write,p=c4fa841aa918bf8274e3e2a44d77568d9861b3ea"
+    STACKS_METRICS_CONFIG="host=https://metrics.stacks.com:8086,db=tds,u=testnet_write,p=c4fa841aa918bf8274e3e2a44d77568d9861b3ea"
     EXPECTED_GENESIS_HASH="4uhcVJyU9pJkvQyS88uRDiswHXSCkY3zQawwpjk2NsNY"
     ;;
   "devnet")
-    ENTRY_POINTS=" --entrypoint entrypoint.devnet.solana.com:8001 --entrypoint entrypoint2.devnet.solana.com:8001 --entrypoint entrypoint3.devnet.solana.com:8001 --entrypoint entrypoint4.devnet.solana.com:8001 --entrypoint entrypoint5.devnet.solana.com:8001"
+    ENTRY_POINTS=" --entrypoint entrypoint.devnet.stacks.com:8001 --entrypoint entrypoint2.devnet.stacks.com:8001 --entrypoint entrypoint3.devnet.stacks.com:8001 --entrypoint entrypoint4.devnet.stacks.com:8001 --entrypoint entrypoint5.devnet.stacks.com:8001"
     KNOWN_VALIDATORS=" --known-validator dv1ZAGvdsz5hHLwWXsVnM94hWf1pjbKVau1QVkaMJ92 --known-validator dv2eQHeP4RFrJZ6UeiZWoc3XTtmtZCUKxxCApCDcRNV --known-validator dv4ACNkpYPcE3aKmYDqZm9G5EB3J4MRoeE7WNDRBVJB --known-validator dv3qDFk1DTF36Z62bNvrCXe9sKATA6xvVy6A798xxAS"
-    SOLANA_METRICS_CONFIG="host=https://metrics.solana.com:8086,db=devnet,u=scratch_writer,p=topsecret"
+    STACKS_METRICS_CONFIG="host=https://metrics.stacks.com:8086,db=devnet,u=scratch_writer,p=topsecret"
     EXPECTED_GENESIS_HASH="EtWTRABZaYq6iMfeYKouRu166VU2xqa1wcaWoxPkrZBG"
     ;;
   *)
-    echo "Solana cluster id is not valid: $SOLANA_CLUSTER"
+    echo "Stacks cluster id is not valid: $STACKS_CLUSTER"
     exit 1
     ;;
 esac
 
-echo "Fine tune sysctl to prepare the system for Solana"
-sudo bash -c "cat >/etc/sysctl.d/20-solana-additionals.conf <<EOF
+echo "Fine tune sysctl to prepare the system for Stacks"
+sudo bash -c "cat >/etc/sysctl.d/20-stacks-additionals.conf <<EOF
 kernel.hung_task_timeout_secs=600
 vm.stat_interval=10
 vm.dirty_ratio=40
@@ -84,12 +84,12 @@ net.ipv4.tcp_fastopen=3
 fs.nr_open = 1000000
 EOF"
 
-sudo bash -c "cat >/etc/sysctl.d/20-solana-mmaps.conf <<EOF
+sudo bash -c "cat >/etc/sysctl.d/20-stacks-mmaps.conf <<EOF
 # Increase memory mapped files limit
 vm.max_map_count = 1000000
 EOF"
 
-sudo bash -c "cat >/etc/sysctl.d/20-solana-udp-buffers.conf <<EOF
+sudo bash -c "cat >/etc/sysctl.d/20-stacks-udp-buffers.conf <<EOF
 # Increase UDP buffer size
 net.core.rmem_default = 134217728
 net.core.rmem_max = 134217728
@@ -99,21 +99,21 @@ EOF"
 
 sudo bash -c "echo 'DefaultLimitNOFILE=1000000' >> /etc/systemd/system.conf"
 
-sudo sysctl -p /etc/sysctl.d/20-solana-mmaps.conf
-sudo sysctl -p /etc/sysctl.d/20-solana-udp-buffers.conf
-sudo sysctl -p /etc/sysctl.d/20-solana-additionals.conf
+sudo sysctl -p /etc/sysctl.d/20-stacks-mmaps.conf
+sudo sysctl -p /etc/sysctl.d/20-stacks-udp-buffers.conf
+sudo sysctl -p /etc/sysctl.d/20-stacks-additionals.conf
 
 sudo systemctl daemon-reload
 
-sudo bash -c "cat >/etc/security/limits.d/90-solana-nofiles.conf <<EOF
+sudo bash -c "cat >/etc/security/limits.d/90-stacks-nofiles.conf <<EOF
 # Increase process file descriptor count limit
 * - nofile 1000000
 EOF"
 
-echo 'Preparing directories and file system for Solana installation'
-sudo mkdir /var/solana
-sudo mkdir /var/solana/data
-sudo mkdir /var/solana/accounts
+echo 'Preparing directories and file system for Stacks installation'
+sudo mkdir /var/stacks
+sudo mkdir /var/stacks/data
+sudo mkdir /var/stacks/accounts
 
 if [[ "$STACK_ID" != "none" ]]; then
   echo "Install and enable CloudFormation helper scripts"
@@ -163,7 +163,7 @@ else
   sudo mkfs -t xfs $DATA_VOLUME_ID
   sleep 10
   DATA_VOLUME_UUID=$(lsblk -fn -o UUID  $DATA_VOLUME_ID)
-  DATA_VOLUME_FSTAB_CONF="UUID=$DATA_VOLUME_UUID /var/solana/data xfs defaults 0 2"
+  DATA_VOLUME_FSTAB_CONF="UUID=$DATA_VOLUME_UUID /var/stacks/data xfs defaults 0 2"
   echo "DATA_VOLUME_ID="$DATA_VOLUME_ID
   echo "DATA_VOLUME_UUID="$DATA_VOLUME_UUID
   echo "DATA_VOLUME_FSTAB_CONF="$DATA_VOLUME_FSTAB_CONF
@@ -194,7 +194,7 @@ else
   sudo mkfs -t xfs $ACCOUNTS_VOLUME_ID
   sleep 10
   ACCOUNTS_VOLUME_UUID=$(lsblk -fn -o UUID $ACCOUNTS_VOLUME_ID)
-  ACCOUNTS_VOLUME_FSTAB_CONF="UUID=$ACCOUNTS_VOLUME_UUID /var/solana/accounts xfs defaults 0 2"
+  ACCOUNTS_VOLUME_FSTAB_CONF="UUID=$ACCOUNTS_VOLUME_UUID /var/stacks/accounts xfs defaults 0 2"
   echo "ACCOUNTS_VOLUME_ID="$ACCOUNTS_VOLUME_ID
   echo "ACCOUNTS_VOLUME_UUID="$ACCOUNTS_VOLUME_UUID
   echo "ACCOUNTS_VOLUME_FSTAB_CONF="$ACCOUNTS_VOLUME_FSTAB_CONF
@@ -203,117 +203,117 @@ else
   sudo mount -a
 fi
 
-sudo mkdir /var/solana/data/ledger
+sudo mkdir /var/stacks/data/ledger
 
-echo 'Adding solana user and group'
-sudo groupadd -g 1002 solana
-sudo useradd -u 1002 -g 1002 -m -s /bin/bash solana
-sudo usermod -aG sudo solana
+echo 'Adding stacks user and group'
+sudo groupadd -g 1002 stacks
+sudo useradd -u 1002 -g 1002 -m -s /bin/bash stacks
+sudo usermod -aG sudo stacks
 
-cd /home/solana
+cd /home/stacks
 sudo mkdir ./bin
 
-echo "Downloading x86 binaries for version v$SOLANA_VERSION"
+echo "Downloading x86 binaries for version v$STACKS_VERSION"
 
-sudo wget -q https://github.com/solana-labs/solana/releases/download/v$SOLANA_VERSION/solana-release-x86_64-unknown-linux-gnu.tar.bz2
-sudo tar -xjvf solana-release-x86_64-unknown-linux-gnu.tar.bz2
-sudo mv solana-release/bin/* ./bin/
+sudo wget -q https://github.com/stacks-labs/stacks/releases/download/v$STACKS_VERSION/stacks-release-x86_64-unknown-linux-gnu.tar.bz2
+sudo tar -xjvf stacks-release-x86_64-unknown-linux-gnu.tar.bz2
+sudo mv stacks-release/bin/* ./bin/
 
-echo "Preparing Solana start script"
+echo "Preparing Stacks start script"
 
-cd /home/solana/bin
+cd /home/stacks/bin
 
 if [[ $NODE_IDENTITY_SECRET_ARN == "none" ]]; then
     echo "Create node identity"
-    sudo ./solana-keygen new --no-passphrase -o /home/solana/config/validator-keypair.json
+    sudo ./stacks-keygen new --no-passphrase -o /home/stacks/config/validator-keypair.json
 else
     echo "Get node identity from AWS Secrets Manager"
     sudo aws secretsmanager get-secret-value --secret-id $NODE_IDENTITY_SECRET_ARN --query SecretString --output text --region $AWS_REGION > ~/validator-keypair.json
-    sudo mv ~/validator-keypair.json /home/solana/config/validator-keypair.json
+    sudo mv ~/validator-keypair.json /home/stacks/config/validator-keypair.json
 fi
-if [[ "$SOLANA_NODE_TYPE" == "consensus" ]]; then
+if [[ "$STACKS_NODE_TYPE" == "consensus" ]]; then
     if [[ $NODE_IDENTITY_SECRET_ARN == "none" ]]; then
         echo "Storing generated node identity to AWS Secrets Manager"
-        NODE_IDENTITY=$(sudo ./solana-keygen pubkey /home/solana/config/vote-account-keypair.json)
-        sudo aws secretsmanager create-secret --name "solana-node/"$NODE_IDENTITY --description "Solana Node Identity Secret created for stack $CF_STACK_NAME" --secret-string file:///home/solana/config/validator-keypair.json --region $AWS_REGION
+        NODE_IDENTITY=$(sudo ./stacks-keygen pubkey /home/stacks/config/vote-account-keypair.json)
+        sudo aws secretsmanager create-secret --name "stacks-node/"$NODE_IDENTITY --description "Stacks Node Identity Secret created for stack $CF_STACK_NAME" --secret-string file:///home/stacks/config/validator-keypair.json --region $AWS_REGION
     fi
     if [[ $VOTE_ACCOUNT_SECRET_ARN == "none" ]]; then
         echo "Create Vote Account Secret"
-        sudo ./solana-keygen new --no-passphrase -o /home/solana/config/vote-account-keypair.json
-        NODE_IDENTITY=$(sudo ./solana-keygen pubkey /home/solana/config/vote-account-keypair.json)
+        sudo ./stacks-keygen new --no-passphrase -o /home/stacks/config/vote-account-keypair.json
+        NODE_IDENTITY=$(sudo ./stacks-keygen pubkey /home/stacks/config/vote-account-keypair.json)
         echo "Storing Vote Account Secret to AWS Secrets Manager"
-        sudo aws secretsmanager create-secret --name "solana-node/"$NODE_IDENTITY --description "Solana Vote Account Secret created for stack $CF_STACK_NAME" --secret-string file:///home/solana/config/vote-account-keypair.json --region $AWS_REGION
+        sudo aws secretsmanager create-secret --name "stacks-node/"$NODE_IDENTITY --description "Stacks Vote Account Secret created for stack $CF_STACK_NAME" --secret-string file:///home/stacks/config/vote-account-keypair.json --region $AWS_REGION
 
         if [[ $AUTHORIZED_WITHDRAWER_ACCOUNT_SECRET_ARN == "none" ]]; then
             echo "Create Authorized Withdrawer Account Secret"
-            sudo ./solana-keygen new --no-passphrase -o /home/solana/config/authorized-withdrawer-keypair.json
-            NODE_IDENTITY=$(sudo ./solana-keygen pubkey /home/solana/config/authorized-withdrawer-keypair.json)
+            sudo ./stacks-keygen new --no-passphrase -o /home/stacks/config/authorized-withdrawer-keypair.json
+            NODE_IDENTITY=$(sudo ./stacks-keygen pubkey /home/stacks/config/authorized-withdrawer-keypair.json)
             echo "Storing Authorized Withdrawer Account  to AWS Secrets Manager"
-            sudo aws secretsmanager create-secret --name "solana-node/"$NODE_IDENTITY --description "Authorized Withdrawer Account Secret created for stack $CF_STACK_NAME" --secret-string file:///home/solana/config/authorized-withdrawer-keypair.json --region $AWS_REGION
+            sudo aws secretsmanager create-secret --name "stacks-node/"$NODE_IDENTITY --description "Authorized Withdrawer Account Secret created for stack $CF_STACK_NAME" --secret-string file:///home/stacks/config/authorized-withdrawer-keypair.json --region $AWS_REGION
 
         else
             echo "Get Authorized Withdrawer Account Secret from AWS Secrets Manager"
             sudo aws secretsmanager get-secret-value --secret-id $AUTHORIZED_WITHDRAWER_ACCOUNT_SECRET_ARN --query SecretString --output text --region $AWS_REGION > ~/authorized-withdrawer-keypair.json
-            sudo mv ~/authorized-withdrawer-keypair.json /home/solana/config/authorized-withdrawer-keypair.json
+            sudo mv ~/authorized-withdrawer-keypair.json /home/stacks/config/authorized-withdrawer-keypair.json
         fi
 
         if [[ $REGISTRATION_TRANSACTION_FUNDING_ACCOUNT_SECRET_ARN != "none" ]]; then
           echo "Get Registration Transaction Funding Account Secret from AWS Secrets Manager"
           sudo aws secretsmanager get-secret-value --secret-id $REGISTRATION_TRANSACTION_FUNDING_ACCOUNT_SECRET_ARN --query SecretString --output text --region $AWS_REGION > ~/id.json
-          sudo mkdir -p /root/.config/solana
-          sudo mv ~/id.json /root/.config/solana/id.json
+          sudo mkdir -p /root/.config/stacks
+          sudo mv ~/id.json /root/.config/stacks/id.json
           echo "Creating Vote Account on-chain"
-          sudo ./solana create-vote-account /home/solana/config/vote-account-keypair.json /home/solana/config/validator-keypair.json /home/solana/config/authorized-withdrawer-keypair.json
+          sudo ./stacks create-vote-account /home/stacks/config/vote-account-keypair.json /home/stacks/config/validator-keypair.json /home/stacks/config/authorized-withdrawer-keypair.json
 
           echo "Deleting Transaction Funding Account Secret from the local disc"
-          sudo rm  /root/.config/solana/id.json
+          sudo rm  /root/.config/stacks/id.json
         else
-          echo "Vote Account not created. Please create it manually: https://docs.solana.com/running-validator/validator-start#create-vote-account"
+          echo "Vote Account not created. Please create it manually: https://docs.stacks.com/running-validator/validator-start#create-vote-account"
         fi
 
         echo "Deleting Authorized Withdrawer Account from the local disc"
-        sudo rm /home/solana/config/authorized-withdrawer-keypair.json
+        sudo rm /home/stacks/config/authorized-withdrawer-keypair.json
     else
         echo "Get Vote Account Secret from AWS Secrets Manager"
         sudo aws secretsmanager get-secret-value --secret-id $VOTE_ACCOUNT_SECRET_ARN --query SecretString --output text --region $AWS_REGION > ~/vote-account-keypair.json
-        sudo mv ~/vote-account-keypair.json /home/solana/config/vote-account-keypair.json
+        sudo mv ~/vote-account-keypair.json /home/stacks/config/vote-account-keypair.json
     fi
 
-mv /opt/solana/node-consensus-template.sh /home/solana/bin/validator.sh
+mv /opt/stacks/node-consensus-template.sh /home/stacks/bin/validator.sh
 fi
 
-if [[ "$SOLANA_NODE_TYPE" == "baserpc" ]]; then
-  mv /opt/solana/node-light-rpc-template.sh /home/solana/bin/validator.sh
+if [[ "$STACKS_NODE_TYPE" == "baserpc" ]]; then
+  mv /opt/stacks/node-light-rpc-template.sh /home/stacks/bin/validator.sh
 fi
 
-if [[ "$SOLANA_NODE_TYPE" == "extendedrpc" ]]; then
-  mv /opt/solana/node-heavy-rpc-template.sh /home/solana/bin/validator.sh
+if [[ "$STACKS_NODE_TYPE" == "extendedrpc" ]]; then
+  mv /opt/stacks/node-heavy-rpc-template.sh /home/stacks/bin/validator.sh
 fi
 
-sed -i "s;__SOLANA_METRICS_CONFIG__;\"$SOLANA_METRICS_CONFIG\";g" /home/solana/bin/validator.sh
-sed -i "s/__EXPECTED_GENESIS_HASH__/$EXPECTED_GENESIS_HASH/g" /home/solana/bin/validator.sh
-sed -i "s/__KNOWN_VALIDATORS__/$KNOWN_VALIDATORS/g" /home/solana/bin/validator.sh
-sed -i "s/__ENTRY_POINTS__/$ENTRY_POINTS/g" /home/solana/bin/validator.sh
-sudo chmod +x /home/solana/bin/validator.sh
+sed -i "s;__STACKS_METRICS_CONFIG__;\"$STACKS_METRICS_CONFIG\";g" /home/stacks/bin/validator.sh
+sed -i "s/__EXPECTED_GENESIS_HASH__/$EXPECTED_GENESIS_HASH/g" /home/stacks/bin/validator.sh
+sed -i "s/__KNOWN_VALIDATORS__/$KNOWN_VALIDATORS/g" /home/stacks/bin/validator.sh
+sed -i "s/__ENTRY_POINTS__/$ENTRY_POINTS/g" /home/stacks/bin/validator.sh
+sudo chmod +x /home/stacks/bin/validator.sh
 
-sudo chown -R solana:solana /var/solana
-sudo chown -R solana:solana /home/solana
+sudo chown -R stacks:stacks /var/stacks
+sudo chown -R stacks:stacks /home/stacks
 
-echo "Starting solana as a service"
+echo "Starting stacks as a service"
 sudo bash -c 'cat > /etc/systemd/system/sol.service <<EOF
 [Unit]
-Description=Solana Validator
+Description=Stacks Validator
 After=network.target
 StartLimitIntervalSec=0
 [Service]
 Type=simple
 Restart=always
 RestartSec=1
-User=solana
+User=stacks
 LimitNOFILE=1000000
 LogRateLimitIntervalSec=0
-Environment="PATH=/bin:/usr/bin:/home/solana/bin"
-ExecStart=/home/solana/bin/validator.sh
+Environment="PATH=/bin:/usr/bin:/home/stacks/bin"
+ExecStart=/home/stacks/bin/validator.sh
 [Install]
 WantedBy=multi-user.target
 EOF'
@@ -321,10 +321,10 @@ EOF'
 sudo systemctl daemon-reload
 sudo systemctl enable --now sol
 
-echo 'Configuring logrotate to rotate Solana logs'
+echo 'Configuring logrotate to rotate Stacks logs'
 
 sudo bash -c 'sudo cat > logrotate.sol <<EOF
-/home/sol/solana-validator.log {
+/home/sol/stacks-validator.log {
   rotate 7
   daily
   missingok
@@ -339,7 +339,7 @@ sudo systemctl restart logrotate.service
 
 echo "Configuring syncchecker script"
 cd /opt
-sudo mv /opt/sync-checker/syncchecker-solana.sh /opt/syncchecker.sh
+sudo mv /opt/sync-checker/syncchecker-stacks.sh /opt/syncchecker.sh
 sudo chmod +x /opt/syncchecker.sh
 
 (crontab -l; echo "*/1 * * * * /opt/syncchecker.sh >/tmp/syncchecker.log 2>&1") | crontab -

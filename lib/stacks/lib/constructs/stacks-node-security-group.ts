@@ -3,14 +3,14 @@ import * as cdkContructs from 'constructs';
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as nag from "cdk-nag";
 
-export interface SolanaNodeSecurityGroupConstructProps {
+export interface StacksNodeSecurityGroupConstructProps {
     vpc: cdk.aws_ec2.IVpc;
   }
 
-  export class SolanaNodeSecurityGroupConstruct extends cdkContructs.Construct {
+  export class StacksNodeSecurityGroupConstruct extends cdkContructs.Construct {
     public securityGroup: cdk.aws_ec2.ISecurityGroup;
 
-    constructor(scope: cdkContructs.Construct, id: string, props: SolanaNodeSecurityGroupConstructProps) {
+    constructor(scope: cdkContructs.Construct, id: string, props: StacksNodeSecurityGroupConstructProps) {
       super(scope, id);
 
       const {

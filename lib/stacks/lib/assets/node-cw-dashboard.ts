@@ -176,7 +176,7 @@ export const SingleNodeCWDashboardJSON = {
             "type": "metric",
             "properties": {
                 "metrics": [
-                    [ "CWAgent", "solana_block_height", "InstanceId", "${INSTANCE_ID}", { "label": "${INSTANCE_ID}-${INSTANCE_NAME}" } ]
+                    [ "CWAgent", "stacks_block_height", "InstanceId", "${INSTANCE_ID}", { "label": "${INSTANCE_ID}-${INSTANCE_NAME}" } ]
                 ],
                 "sparkline": true,
                 "view": "timeSeries",
@@ -184,7 +184,7 @@ export const SingleNodeCWDashboardJSON = {
                 "region": "${REGION}",
                 "stat": "Maximum",
                 "period": 60,
-                "title": "Solana Block Height"
+                "title": "Stacks Block Height"
             }
         },
         {
@@ -201,9 +201,9 @@ export const SingleNodeCWDashboardJSON = {
                 "stat": "Maximum",
                 "period": 60,
                 "metrics": [
-                    [ "CWAgent", "solana_slots_behind", "InstanceId", "${INSTANCE_ID}", { "label": "${INSTANCE_ID}-${INSTANCE_NAME}" } ]
+                    [ "CWAgent", "stacks_slots_behind", "InstanceId", "${INSTANCE_ID}", { "label": "${INSTANCE_ID}-${INSTANCE_NAME}" } ]
                 ],
-                "title": "Solana Slots Behind"
+                "title": "Stacks Slots Behind"
             }
         },
         {

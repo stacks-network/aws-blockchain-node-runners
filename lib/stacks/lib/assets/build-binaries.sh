@@ -18,17 +18,17 @@ echo "Installing libssl-dev, pkg-config, zlib1g-dev, protobuf etc."
 apt-get update
 apt-get -y install libssl-dev libudev-dev pkg-config zlib1g-dev llvm clang cmake make libprotobuf-dev protobuf-compiler
 
-echo "Getting the source for stable version v$SOLANA_VERSION"
-wget https://github.com/solana-labs/solana/archive/refs/tags/v$SOLANA_VERSION.tar.gz
-tar -xzvf v$SOLANA_VERSION.tar.gz
-cd solana-$SOLANA_VERSION
+echo "Getting the source for stable version v$STACKS_VERSION"
+wget https://github.com/stacks-labs/stacks/archive/refs/tags/v$STACKS_VERSION.tar.gz
+tar -xzvf v$STACKS_VERSION.tar.gz
+cd stacks-$STACKS_VERSION
 
-echo "Building Solana..."
+echo "Building Stacks..."
 ./scripts/cargo-install-all.sh --validator-only .
 
-echo "Check solana-validator version"
+echo "Check stacks-validator version"
 
-./bin/solana-validator --version
+./bin/stacks-validator --version
 
 echo "Modifying path"
 echo export PATH=$PWD/bin:$PATH >> /home/ssm-user/.profile

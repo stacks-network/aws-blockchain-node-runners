@@ -6,27 +6,27 @@ import * as s3Assets from "aws-cdk-lib/aws-s3-assets";
 import * as nag from "cdk-nag";
 import * as path from "path";
 import * as fs from "fs";
-import * as configTypes from "./config/solanaConfig.interface";
-import { SolanaNodeSecurityGroupConstruct } from "./constructs/solana-node-security-group"
+import * as configTypes from "./config/stacksConfig.interface";
+import { StacksNodeSecurityGroupConstruct } from "./constructs/stacks-node-security-group"
 import { HANodesConstruct } from "../../constructs/ha-rpc-nodes-with-alb"
 import * as constants from "../../constructs/constants";
 
-export interface SolanaHANodesStackProps extends cdk.StackProps {
+export interface StacksHANodesStackProps extends cdk.StackProps {
     instanceType: ec2.InstanceType;
     instanceCpuType: ec2.AmazonLinuxCpuType;
-    solanaCluster: configTypes.SolanaCluster;
-    solanaVersion: string;
-    nodeConfiguration: configTypes.SolanaNodeConfiguration;
-    dataVolume: configTypes.SolanaDataVolumeConfig;
-    accountsVolume: configTypes.SolanaAccountsVolumeConfig;
+    stacksCluster: configTypes.StacksCluster;
+    stacksVersion: string;
+    nodeConfiguration: configTypes.StacksNodeConfiguration;
+    dataVolume: configTypes.StacksDataVolumeConfig;
+    accountsVolume: configTypes.StacksAccountsVolumeConfig;
 
     albHealthCheckGracePeriodMin: number;
     heartBeatDelayMin: number;
     numberOfNodes: number;
 }
 
-export class SolanaHANodesStack extends cdk.Stack {
-    constructor(scope: cdkConstructs.Construct, id: string, props: SolanaHANodesStackProps) {
+export class StacksHANodesStack extends cdk.Stack {
+    constructor(scope: cdkConstructs.Construct, id: string, props: StacksHANodesStackProps) {
         super(scope, id, props);
 
         // Setting up necessary environment variables
@@ -39,8 +39,8 @@ export class SolanaHANodesStack extends cdk.Stack {
         const {
             instanceType,
             instanceCpuType,
-            solanaCluster,
-            solanaVersion,
+            stacksCluster,
+            stacksVersion,
             nodeConfiguration,
             dataVolume,
             accountsVolume,
@@ -52,8 +52,8 @@ export class SolanaHANodesStack extends cdk.Stack {
         // Using default VPC
         const vpc = ec2.Vpc.fromLookup(this, "vpc", { isDefault: true });
 
-        // Setting up the security group for the node from Solana-specific construct
-        const instanceSG = new SolanaNodeSecurityGroupConstruct (this, "security-group", {
+        // Setting up the security group for the node from Stacks-specific construct
+        const instanceSG = new StacksNodeSecurityGroupConstruct (this, "security-group", {
             vpc: vpc,
         })
 
@@ -63,7 +63,7 @@ export class SolanaHANodesStack extends cdk.Stack {
         });
 
         // Getting the IAM role ARN from the common stack
-        const importedInstanceRoleArn = cdk.Fn.importValue("SolanaNodeInstanceRoleArn");
+        const importedInstanceRoleArn = cdk.Fn.importValue("StacksNodeInstanceRoleArn");
 
         const instanceRole = iam.Role.fromRoleArn(this, "iam-role", importedInstanceRoleArn);
 
@@ -97,13 +97,13 @@ export class SolanaHANodesStack extends cdk.Stack {
             _ACCOUNTS_VOLUME_SIZE_: accountsVolumeSizeBytes.toString(),
             _DATA_VOLUME_TYPE_: dataVolume.type,
             _DATA_VOLUME_SIZE_: dataVolumeSizeBytes.toString(),
-            _SOLANA_VERSION_: solanaVersion,
-            _SOLANA_NODE_TYPE_: nodeConfiguration,
+            _STACKS_VERSION_: stacksVersion,
+            _STACKS_NODE_TYPE_: nodeConfiguration,
             _NODE_IDENTITY_SECRET_ARN_: constants.NoneValue,
             _VOTE_ACCOUNT_SECRET_ARN_: constants.NoneValue,
             _AUTHORIZED_WITHDRAWER_ACCOUNT_SECRET_ARN_: constants.NoneValue,
             _REGISTRATION_TRANSACTION_FUNDING_ACCOUNT_SECRET_ARN_: constants.NoneValue,
-            _SOLANA_CLUSTER_: solanaCluster,
+            _STACKS_CLUSTER_: stacksCluster,
             _LIFECYCLE_HOOK_NAME_: lifecycleHookName,
             _ASG_NAME_: autoScalingGroupName,
         });

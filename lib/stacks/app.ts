@@ -3,45 +3,45 @@ import 'dotenv/config'
 import "source-map-support/register";
 import * as cdk from "aws-cdk-lib";
 import * as nag from "cdk-nag";
-import * as config from "./lib/config/solanaConfig";
+import * as config from "./lib/config/stacksConfig";
 
-import { SolanaSingleNodeStack } from "./lib/single-node-stack";
-import { SolanaCommonStack } from "./lib/common-stack";
-import { SolanaHANodesStack } from "./lib/ha-nodes-stack";
+import { StacksSingleNodeStack } from "./lib/single-node-stack";
+import { StacksCommonStack } from "./lib/common-stack";
+import { StacksHANodesStack } from "./lib/ha-nodes-stack";
 
 const app = new cdk.App();
-cdk.Tags.of(app).add("Project", "AWSSolana");
+cdk.Tags.of(app).add("Project", "AWSStacks");
 
-new SolanaCommonStack(app, "solana-common", {
-    stackName: `solana-nodes-common`,
+new StacksCommonStack(app, "stacks-common", {
+    stackName: `stacks-nodes-common`,
     env: { account: config.baseConfig.accountId, region: config.baseConfig.region },
 });
 
-new SolanaSingleNodeStack(app, "solana-single-node", {
-    stackName: `solana-single-node-${config.baseNodeConfig.nodeConfiguration}`,
+new StacksSingleNodeStack(app, "stacks-single-node", {
+    stackName: `stacks-single-node-${config.baseNodeConfig.nodeConfiguration}`,
     env: { account: config.baseConfig.accountId, region: config.baseConfig.region },
 
     instanceType: config.baseNodeConfig.instanceType,
     instanceCpuType: config.baseNodeConfig.instanceCpuType,
-    solanaCluster: config.baseNodeConfig.solanaCluster,
-    solanaVersion: config.baseNodeConfig.solanaVersion,
+    stacksCluster: config.baseNodeConfig.stacksCluster,
+    stacksVersion: config.baseNodeConfig.stacksVersion,
     nodeConfiguration: config.baseNodeConfig.nodeConfiguration,
     dataVolume: config.baseNodeConfig.dataVolume,
     accountsVolume: config.baseNodeConfig.accountsVolume,
-    solanaNodeIdentitySecretARN: config.baseNodeConfig.solanaNodeIdentitySecretARN,
+    stacksNodeIdentitySecretARN: config.baseNodeConfig.stacksNodeIdentitySecretARN,
     voteAccountSecretARN: config.baseNodeConfig.voteAccountSecretARN,
     authorizedWithdrawerAccountSecretARN: config.baseNodeConfig.authorizedWithdrawerAccountSecretARN,
     registrationTransactionFundingAccountSecretARN: config.baseNodeConfig.registrationTransactionFundingAccountSecretARN,
 });
 
-new SolanaHANodesStack(app, "solana-ha-nodes", {
-    stackName: `solana-ha-nodes-${config.baseNodeConfig.nodeConfiguration}`,
+new StacksHANodesStack(app, "stacks-ha-nodes", {
+    stackName: `stacks-ha-nodes-${config.baseNodeConfig.nodeConfiguration}`,
     env: { account: config.baseConfig.accountId, region: config.baseConfig.region },
 
     instanceType: config.baseNodeConfig.instanceType,
     instanceCpuType: config.baseNodeConfig.instanceCpuType,
-    solanaCluster: config.baseNodeConfig.solanaCluster,
-    solanaVersion: config.baseNodeConfig.solanaVersion,
+    stacksCluster: config.baseNodeConfig.stacksCluster,
+    stacksVersion: config.baseNodeConfig.stacksVersion,
     nodeConfiguration: config.baseNodeConfig.nodeConfiguration,
     dataVolume: config.baseNodeConfig.dataVolume,
     accountsVolume: config.baseNodeConfig.accountsVolume,

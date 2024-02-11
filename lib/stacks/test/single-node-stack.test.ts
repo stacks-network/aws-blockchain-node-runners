@@ -2,33 +2,33 @@ import { Match, Template } from "aws-cdk-lib/assertions";
 import * as cdk from "aws-cdk-lib";
 import * as dotenv from 'dotenv';
 dotenv.config({ path: './test/.env-test' });
-import * as config from "../lib/config/solanaConfig";
-import { SolanaSingleNodeStack } from "../lib/single-node-stack";
+import * as config from "../lib/config/stacksConfig";
+import { StacksSingleNodeStack } from "../lib/single-node-stack";
 
-describe("SolanaSingleNodeStack", () => {
+describe("StacksSingleNodeStack", () => {
   test("synthesizes the way we expect", () => {
     const app = new cdk.App();
 
-    // Create the SolanaSingleNodeStack.
-    const solanaSingleNodeStack = new SolanaSingleNodeStack(app, "solana-sync-node", {
-      stackName: `solana-single-node-${config.baseNodeConfig.nodeConfiguration}`,
+    // Create the StacksSingleNodeStack.
+    const stacksSingleNodeStack = new StacksSingleNodeStack(app, "stacks-sync-node", {
+      stackName: `stacks-single-node-${config.baseNodeConfig.nodeConfiguration}`,
       env: { account: config.baseConfig.accountId, region: config.baseConfig.region },
 
       instanceType: config.baseNodeConfig.instanceType,
       instanceCpuType: config.baseNodeConfig.instanceCpuType,
-      solanaCluster: config.baseNodeConfig.solanaCluster,
-      solanaVersion: config.baseNodeConfig.solanaVersion,
+      stacksCluster: config.baseNodeConfig.stacksCluster,
+      stacksVersion: config.baseNodeConfig.stacksVersion,
       nodeConfiguration: config.baseNodeConfig.nodeConfiguration,
       dataVolume: config.baseNodeConfig.dataVolume,
       accountsVolume: config.baseNodeConfig.accountsVolume,
-      solanaNodeIdentitySecretARN: config.baseNodeConfig.solanaNodeIdentitySecretARN,
+      stacksNodeIdentitySecretARN: config.baseNodeConfig.stacksNodeIdentitySecretARN,
       voteAccountSecretARN: config.baseNodeConfig.voteAccountSecretARN,
       authorizedWithdrawerAccountSecretARN: config.baseNodeConfig.authorizedWithdrawerAccountSecretARN,
       registrationTransactionFundingAccountSecretARN: config.baseNodeConfig.registrationTransactionFundingAccountSecretARN,
   });
 
     // Prepare the stack for assertions.
-    const template = Template.fromStack(solanaSingleNodeStack);
+    const template = Template.fromStack(stacksSingleNodeStack);
 
     // Has EC2 instance security group.
     template.hasResourceProperties("AWS::EC2::SecurityGroup", {
@@ -137,7 +137,7 @@ describe("SolanaSingleNodeStack", () => {
     // Has CloudWatch dashboard.
     template.hasResourceProperties("AWS::CloudWatch::Dashboard", {
       DashboardBody: Match.anyValue(),
-      DashboardName: `solana-single-node-${config.baseNodeConfig.nodeConfiguration}`
+      DashboardName: `stacks-single-node-${config.baseNodeConfig.nodeConfiguration}`
     })
 
  });

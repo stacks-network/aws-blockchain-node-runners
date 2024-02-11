@@ -9,26 +9,26 @@ import * as nodeCwDashboard from "./assets/node-cw-dashboard"
 import * as cw from 'aws-cdk-lib/aws-cloudwatch';
 import * as nag from "cdk-nag";
 import { SingleNodeConstruct } from "../../constructs/single-node"
-import * as configTypes from "./config/solanaConfig.interface";
+import * as configTypes from "./config/stacksConfig.interface";
 import * as constants from "../../constructs/constants";
-import { SolanaNodeSecurityGroupConstruct } from "./constructs/solana-node-security-group"
+import { StacksNodeSecurityGroupConstruct } from "./constructs/stacks-node-security-group"
 
-export interface SolanaSingleNodeStackProps extends cdk.StackProps {
+export interface StacksSingleNodeStackProps extends cdk.StackProps {
     instanceType: ec2.InstanceType;
     instanceCpuType: ec2.AmazonLinuxCpuType;
-    solanaCluster: configTypes.SolanaCluster;
-    solanaVersion: string;
-    nodeConfiguration: configTypes.SolanaNodeConfiguration;
-    dataVolume: configTypes.SolanaDataVolumeConfig;
-    accountsVolume: configTypes.SolanaAccountsVolumeConfig;
-    solanaNodeIdentitySecretARN: string;
+    stacksCluster: configTypes.StacksCluster;
+    stacksVersion: string;
+    nodeConfiguration: configTypes.StacksNodeConfiguration;
+    dataVolume: configTypes.StacksDataVolumeConfig;
+    accountsVolume: configTypes.StacksAccountsVolumeConfig;
+    stacksNodeIdentitySecretARN: string;
     voteAccountSecretARN: string;
     authorizedWithdrawerAccountSecretARN: string;
     registrationTransactionFundingAccountSecretARN: string;
 }
 
-export class SolanaSingleNodeStack extends cdk.Stack {
-    constructor(scope: cdkConstructs.Construct, id: string, props: SolanaSingleNodeStackProps) {
+export class StacksSingleNodeStack extends cdk.Stack {
+    constructor(scope: cdkConstructs.Construct, id: string, props: StacksSingleNodeStackProps) {
         super(scope, id, props);
 
         // Setting up necessary environment variables
@@ -42,12 +42,12 @@ export class SolanaSingleNodeStack extends cdk.Stack {
         const {
             instanceType,
             instanceCpuType,
-            solanaCluster,
-            solanaVersion,
+            stacksCluster,
+            stacksVersion,
             nodeConfiguration,
             dataVolume,
             accountsVolume,
-            solanaNodeIdentitySecretARN,
+            stacksNodeIdentitySecretARN,
             voteAccountSecretARN,
             authorizedWithdrawerAccountSecretARN,
             registrationTransactionFundingAccountSecretARN,
@@ -56,8 +56,8 @@ export class SolanaSingleNodeStack extends cdk.Stack {
         // Using default VPC
         const vpc = ec2.Vpc.fromLookup(this, "vpc", { isDefault: true });
 
-        // Setting up the security group for the node from Solana-specific construct
-        const instanceSG = new SolanaNodeSecurityGroupConstruct (this, "security-group", {
+        // Setting up the security group for the node from Stacks-specific construct
+        const instanceSG = new StacksNodeSecurityGroupConstruct (this, "security-group", {
             vpc: vpc,
         })
 
@@ -67,7 +67,7 @@ export class SolanaSingleNodeStack extends cdk.Stack {
         });
 
         // Getting the IAM role ARN from the common stack
-        const importedInstanceRoleArn = cdk.Fn.importValue("SolanaNodeInstanceRoleArn");
+        const importedInstanceRoleArn = cdk.Fn.importValue("StacksNodeInstanceRoleArn");
 
         const instanceRole = iam.Role.fromRoleArn(this, "iam-role", importedInstanceRoleArn);
 
@@ -112,13 +112,13 @@ export class SolanaSingleNodeStack extends cdk.Stack {
             _ACCOUNTS_VOLUME_SIZE_: accountsVolumeSizeBytes.toString(),
             _DATA_VOLUME_TYPE_: dataVolume.type,
             _DATA_VOLUME_SIZE_: dataVolumeSizeBytes.toString(),
-            _SOLANA_VERSION_: solanaVersion,
-            _SOLANA_NODE_TYPE_: nodeConfiguration,
-            _NODE_IDENTITY_SECRET_ARN_: solanaNodeIdentitySecretARN,
+            _STACKS_VERSION_: stacksVersion,
+            _STACKS_NODE_TYPE_: nodeConfiguration,
+            _NODE_IDENTITY_SECRET_ARN_: stacksNodeIdentitySecretARN,
             _VOTE_ACCOUNT_SECRET_ARN_: voteAccountSecretARN,
             _AUTHORIZED_WITHDRAWER_ACCOUNT_SECRET_ARN_: authorizedWithdrawerAccountSecretARN,
             _REGISTRATION_TRANSACTION_FUNDING_ACCOUNT_SECRET_ARN_: registrationTransactionFundingAccountSecretARN,
-            _SOLANA_CLUSTER_: solanaCluster,
+            _STACKS_CLUSTER_: stacksCluster,
             _LIFECYCLE_HOOK_NAME_: constants.NoneValue,
             _ASG_NAME_: constants.NoneValue,
         });
@@ -131,7 +131,7 @@ export class SolanaSingleNodeStack extends cdk.Stack {
             REGION: REGION,
         })
 
-        new cw.CfnDashboard(this, 'solana-cw-dashboard', {
+        new cw.CfnDashboard(this, 'stacks-cw-dashboard', {
             dashboardName: `${STACK_NAME}-${node.instanceId}`,
             dashboardBody: dashboardString,
         });

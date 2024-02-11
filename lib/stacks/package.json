@@ -1,5 +1,5 @@
 {
-  "name": "aws-blockchain-node-runners-solana",
+  "name": "aws-blockchain-node-runners-stacks",
   "version": "0.2.0",
   "scripts": {
     "build": "npx tsc",

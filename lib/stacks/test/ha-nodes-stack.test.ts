@@ -2,22 +2,22 @@ import { Match, Template } from "aws-cdk-lib/assertions";
 import * as cdk from "aws-cdk-lib";
 import * as dotenv from 'dotenv';
 dotenv.config({ path: './test/.env-test' });
-import * as config from "../lib/config/solanaConfig";
-import { SolanaHANodesStack } from "../lib/ha-nodes-stack";
+import * as config from "../lib/config/stacksConfig";
+import { StacksHANodesStack } from "../lib/ha-nodes-stack";
 
-describe("SolanaHANodesStack", () => {
+describe("StacksHANodesStack", () => {
   test("synthesizes the way we expect", () => {
     const app = new cdk.App();
 
-    // Create the SolanaHANodesStack.
-    const solanaHANodesStack = new SolanaHANodesStack(app, "solana-sync-node", {
-    stackName: `solana-ha-nodes-${config.baseNodeConfig.nodeConfiguration}`,
+    // Create the StacksHANodesStack.
+    const stacksHANodesStack = new StacksHANodesStack(app, "stacks-sync-node", {
+    stackName: `stacks-ha-nodes-${config.baseNodeConfig.nodeConfiguration}`,
     env: { account: config.baseConfig.accountId, region: config.baseConfig.region },
 
     instanceType: config.baseNodeConfig.instanceType,
     instanceCpuType: config.baseNodeConfig.instanceCpuType,
-    solanaCluster: config.baseNodeConfig.solanaCluster,
-    solanaVersion: config.baseNodeConfig.solanaVersion,
+    stacksCluster: config.baseNodeConfig.stacksCluster,
+    stacksVersion: config.baseNodeConfig.stacksVersion,
     nodeConfiguration: config.baseNodeConfig.nodeConfiguration,
     dataVolume: config.baseNodeConfig.dataVolume,
     accountsVolume: config.baseNodeConfig.accountsVolume,
@@ -28,7 +28,7 @@ describe("SolanaHANodesStack", () => {
   });
 
     // Prepare the stack for assertions.
-    const template = Template.fromStack(solanaHANodesStack);
+    const template = Template.fromStack(stacksHANodesStack);
 
     // Has EC2 instance security group.
     template.hasResourceProperties("AWS::EC2::SecurityGroup", {
@@ -145,7 +145,7 @@ describe("SolanaHANodesStack", () => {
 
     // Has Auto Scaling Group.
     template.hasResourceProperties("AWS::AutoScaling::AutoScalingGroup", {
-      AutoScalingGroupName: `solana-ha-nodes-${config.baseNodeConfig.nodeConfiguration}`,
+      AutoScalingGroupName: `stacks-ha-nodes-${config.baseNodeConfig.nodeConfiguration}`,
       HealthCheckGracePeriod: config.haNodeConfig.albHealthCheckGracePeriodMin * 60,
       HealthCheckType: "ELB",
       DefaultInstanceWarmup: 60,
@@ -160,7 +160,7 @@ describe("SolanaHANodesStack", () => {
     template.hasResourceProperties("AWS::AutoScaling::LifecycleHook", {
       DefaultResult: "ABANDON",
       HeartbeatTimeout: config.haNodeConfig.heartBeatDelayMin * 60,
-      LifecycleHookName: `solana-ha-nodes-${config.baseNodeConfig.nodeConfiguration}`,
+      LifecycleHookName: `stacks-ha-nodes-${config.baseNodeConfig.nodeConfiguration}`,
       LifecycleTransition: "autoscaling:EC2_INSTANCE_LAUNCHING",
     });
 
@@ -203,7 +203,7 @@ describe("SolanaHANodesStack", () => {
         },
         {
          Key: "access_logs.s3.prefix",
-         Value: `solana-ha-nodes-${config.baseNodeConfig.nodeConfiguration}`
+         Value: `stacks-ha-nodes-${config.baseNodeConfig.nodeConfiguration}`
         }
        ],
        Scheme: "internal",
