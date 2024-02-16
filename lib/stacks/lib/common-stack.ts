@@ -26,15 +26,15 @@ export class StacksCommonStack extends cdk.Stack {
         });
 
         instanceRole.addToPolicy(new iam.PolicyStatement({
-             // Can't target specific stack: https://github.com/aws/aws-cdk/issues/22657
+            // Can't target specific stack: https://github.com/aws/aws-cdk/issues/22657
             resources: ["*"],
             actions: ["cloudformation:SignalResource"],
-           }));
+        }));
 
         instanceRole.addToPolicy(new iam.PolicyStatement({
            resources: [`arn:aws:autoscaling:${region}:${this.AWS_ACCOUNT_ID}:autoScalingGroup:*:autoScalingGroupName/stacks-*`],
            actions: ["autoscaling:CompleteLifecycleAction"],
-          }));
+        }));
 
         new cdk.CfnOutput(this, "Instance Role ARN", {
             value: instanceRole.roleArn,
@@ -44,7 +44,6 @@ export class StacksCommonStack extends cdk.Stack {
         /**
          * cdk-nag suppressions
          */
-
         nag.NagSuppressions.addResourceSuppressions(
             this,
             [

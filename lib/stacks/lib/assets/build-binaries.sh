@@ -1,11 +1,29 @@
-#!/bin/bash
-
+#!/bin/sh
 source /etc/environment
 
+exec >> /build-binaries.sh.log
+
+# Download
+STACKS_REPO="stacks-core"
+STACKS_ORG="stacks-network"
+START_DIR=$PWD
+
+# Install build dependencies.
+sudo yum update
+sudo yum -y install clang llvm git
+
+mkdir -p src && cd src
+
+if [ -z "$HOME" ]; then
+  # Set $HOME to /root. $HOME isn't set to be /root
+  # when this script first runs on the host.
+  export HOME="/root"
+  echo "HOME is not set. Setting it to /root."
+fi
+
+# Install Rust.
 echo "Install rustc, cargo and rustfmt."
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs > rust-installer.sh
-chmod 755 ./rust-installer.sh
-./rust-installer.sh -q -y
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 source $HOME/.cargo/env
 rustup component add rustfmt
 
@@ -14,22 +32,23 @@ rustup update
 
 export RUST_STABLE_VERSION=$(rustc --version | awk '{print $2}')
 
-echo "Installing libssl-dev, pkg-config, zlib1g-dev, protobuf etc."
-apt-get update
-apt-get -y install libssl-dev libudev-dev pkg-config zlib1g-dev llvm clang cmake make libprotobuf-dev protobuf-compiler
+echo "Getting the source for stable version $STACKS_VERSION"
+if [[ "$STACKS_VERSION" == "latest" ]]; then
+  echo "Aquiring tag for latest stable release."
+  VERSION_TAG=$(curl -sL https://api.github.com/repos/$STACKS_ORG/$STACKS_REPO/releases/latest | jq -r .tag_name)
+else
+  VERSION_TAG=$STACKS_VERSION
+fi
 
-echo "Getting the source for stable version v$STACKS_VERSION"
-wget https://github.com/stacks-labs/stacks/archive/refs/tags/v$STACKS_VERSION.tar.gz
-tar -xzvf v$STACKS_VERSION.tar.gz
-cd stacks-$STACKS_VERSION
+echo "Fetching stacks latest code from stacks release $VERSION_TAG"
+wget https://github.com/$STACKS_ORG/$STACKS_REPO/archive/refs/tags/$VERSION_TAG.tar.gz
+tar -xzvf $VERSION_TAG.tar.gz
 
-echo "Building Stacks..."
-./scripts/cargo-install-all.sh --validator-only .
+SOURCE_DIR="$PWD/$STACKS_REPO-$VERSION_TAG"
 
-echo "Check stacks-validator version"
+# Build relevant source code
+cd $SOURCE_DIR
+cargo build --features monitoring_prom,slog_json --release --workspace
 
-./bin/stacks-validator --version
-
-echo "Modifying path"
-echo export PATH=$PWD/bin:$PATH >> /home/ssm-user/.profile
-source /home/ssm-user/.profile
+sudo mkdir -p $START_DIR/bin
+find target/release/ -maxdepth 1 -perm /a+x ! -type d -exec cp {} $START_DIR/bin/ \;

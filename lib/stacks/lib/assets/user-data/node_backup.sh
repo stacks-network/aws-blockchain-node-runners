@@ -224,10 +224,7 @@ wait # Wait for both background processes to finish
 
 # No new directories are made at this point; ensure that the stacks
 # user has all necessary permissions.
-
-# sudo chown -R stacks:stacks /var/stacks/
-sudo chown -R stacks:stacks /var/log/stacks/
-sudo chown -R stacks:stacks /var/log/stacks/
+sudo chown -R stacks:stacks /var/stacks/
 sudo chown -R stacks:stacks /var/lib/stacks/
 
 # Setup stacks as a service

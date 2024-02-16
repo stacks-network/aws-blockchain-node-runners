@@ -17,38 +17,17 @@ new StacksCommonStack(app, "stacks-common", {
     env: { account: config.baseConfig.accountId, region: config.baseConfig.region },
 });
 
-new StacksSingleNodeStack(app, "stacks-single-node", {
-    stackName: `stacks-single-node-${config.baseNodeConfig.nodeConfiguration}`,
+new StacksSingleNodeStack(app, "stacks-single-node-2", {
+    stackName: `stacks-single-node-2-${config.baseNodeConfig.stacksNodeConfiguration}`,
     env: { account: config.baseConfig.accountId, region: config.baseConfig.region },
-
-    instanceType: config.baseNodeConfig.instanceType,
-    instanceCpuType: config.baseNodeConfig.instanceCpuType,
-    stacksCluster: config.baseNodeConfig.stacksCluster,
-    stacksVersion: config.baseNodeConfig.stacksVersion,
-    nodeConfiguration: config.baseNodeConfig.nodeConfiguration,
-    dataVolume: config.baseNodeConfig.dataVolume,
-    accountsVolume: config.baseNodeConfig.accountsVolume,
-    stacksNodeIdentitySecretARN: config.baseNodeConfig.stacksNodeIdentitySecretARN,
-    voteAccountSecretARN: config.baseNodeConfig.voteAccountSecretARN,
-    authorizedWithdrawerAccountSecretARN: config.baseNodeConfig.authorizedWithdrawerAccountSecretARN,
-    registrationTransactionFundingAccountSecretARN: config.baseNodeConfig.registrationTransactionFundingAccountSecretARN,
+    ...config.baseNodeConfig
 });
 
 new StacksHANodesStack(app, "stacks-ha-nodes", {
-    stackName: `stacks-ha-nodes-${config.baseNodeConfig.nodeConfiguration}`,
+    stackName: `stacks-ha-nodes-${config.baseNodeConfig.stacksNodeConfiguration}`,
     env: { account: config.baseConfig.accountId, region: config.baseConfig.region },
-
-    instanceType: config.baseNodeConfig.instanceType,
-    instanceCpuType: config.baseNodeConfig.instanceCpuType,
-    stacksCluster: config.baseNodeConfig.stacksCluster,
-    stacksVersion: config.baseNodeConfig.stacksVersion,
-    nodeConfiguration: config.baseNodeConfig.nodeConfiguration,
-    dataVolume: config.baseNodeConfig.dataVolume,
-    accountsVolume: config.baseNodeConfig.accountsVolume,
-
-    albHealthCheckGracePeriodMin: config.haNodeConfig.albHealthCheckGracePeriodMin,
-    heartBeatDelayMin: config.haNodeConfig.heartBeatDelayMin,
-    numberOfNodes: config.haNodeConfig.numberOfNodes,
+    ...config.baseNodeConfig,
+    ...config.haNodeConfig
 });
 
 
