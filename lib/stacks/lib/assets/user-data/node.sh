@@ -3,8 +3,6 @@ set +e
 
 # General system environment variables
 DATA_VOLUME_PATH=/var/lib/stacks
-ASSETS_VOLUME_PATH=/var/stacks
-
 CLOUD_ASSETS_DOWNLOAD_PATH=/tmp/assets.zip
 CLOUD_ASSETS_PATH=/var/tmp/assets
 
@@ -29,22 +27,20 @@ echo "BITCOIN_RPC_PASSWORD=${_BITCOIN_RPC_PASSWORD_}" >> /etc/environment
 echo "BITCOIN_P2P_PORT=${_BITCOIN_P2P_PORT_}" >> /etc/environment
 echo "BITCOIN_RPC_PORT=${_BITCOIN_RPC_PORT_}" >> /etc/environment
 # Cloud resource config
-echo "STACKS_MINER_SECRET_ARN=${_STACKS_SIGNER_SECRET_ARN_}" >> /etc/environment
-echo "STACKS_SIGNER_SECRET_ARN=${_STACKS_MINER_SECRET_ARN_}" >> /etc/environment
+echo "STACKS_MINER_SECRET_ARN=${_STACKS_MINER_SECRET_ARN_}" >> /etc/environment
+echo "STACKS_SIGNER_SECRET_ARN=${_STACKS_SIGNER_SECRET_ARN_}" >> /etc/environment
 echo "DATA_VOLUME_TYPE=${_DATA_VOLUME_TYPE_}" >> /etc/environment
 echo "DATA_VOLUME_SIZE=${_DATA_VOLUME_SIZE_}" >> /etc/environment
-echo "ASSETS_VOLUME_TYPE=${_ASSETS_VOLUME_TYPE_}" >> /etc/environment
-echo "ASSETS_VOLUME_SIZE=${_ASSETS_VOLUME_SIZE_}" >> /etc/environment
-echo "LIFECYCLE_HOOK_NAME=${_LIFECYCLE_HOOK_NAME_}" >> /etc/environment
+# TODO: Irrelevant until the high availability option with the autoscaling group is implemented.
 echo "ASG_NAME=${_ASG_NAME_}" >> /etc/environment
-echo "STACKS_CHAINSTATE_ARCHIVE=${_STACKS_CHAINSTATE_ARCHIVE_}" >> /etc/environment
+echo "LIFECYCLE_HOOK_NAME=${_LIFECYCLE_HOOK_NAME_}" >> /etc/environment
 # Place shared environment variables here.
 echo "DATA_VOLUME_PATH=$DATA_VOLUME_PATH" >> /etc/environment
-echo "ASSETS_VOLUME_PATH=$ASSETS_VOLUME_PATH" >> /etc/environment
 echo "CLOUD_ASSETS_PATH=$CLOUD_ASSETS_PATH" >> /etc/environment
 
 source /etc/environment
 
+# Set STDOUT and STDERR to send to viewable text files at the root directory.
 exec >> /node.sh.log
 exec 2>> /node.sh.elog
 
@@ -63,21 +59,17 @@ echo "Downloading assets zip file"
 aws s3 cp $CLOUD_ASSETS_S3_PATH $CLOUD_ASSETS_DOWNLOAD_PATH --region $AWS_REGION
 unzip -qo $CLOUD_ASSETS_DOWNLOAD_PATH -d $CLOUD_ASSETS_PATH
 
-# TODO: Secret stuff here.
-# if [[ $NODE_IDENTITY_SECRET_ARN == "none" ]]; then
-#     echo "Create node identity"
-#     sudo ./stacks-keygen new --no-passphrase -o /home/stacks/config/validator-keypair.json
-
-  # sudo yum -y install npm
-  # npm install @stacks/cli
-  # sudo mkdir -p /etc/stacks
-  # npx @stacks/cli make_keychain 2>/dev/null | jq > /etc/stacks/$STACKS_NODE_CONFIGURATION-keychain.json
-
-# else
-#     echo "Get node identity from AWS Secrets Manager"
-#     sudo aws secretsmanager get-secret-value --secret-id $NODE_IDENTITY_SECRET_ARN --query SecretString --output text --region $AWS_REGION > ~/validator-keypair.json
-#     sudo mv ~/validator-keypair.json /home/stacks/config/validator-keypair.json
-# fi
+# TODO:
+# The "signer" and "miner" configurations will both need access to secret keys that should either be
+# produced on startup or retrieved from an existing secret and supplied to the host via an ARN. That
+# functionality should be included here.
+#
+# ```bash
+# sudo yum -y install npm
+# npm install @stacks/cli
+# sudo mkdir -p /etc/stacks
+# npx @stacks/cli make_keychain 2>/dev/null | jq > /etc/stacks/$STACKS_NODE_CONFIGURATION-keychain.json
+# ```
 
 sudo mkdir -p /etc/stacks/
 CONFIG_DIR=$CLOUD_ASSETS_PATH/stacks/config/$STACKS_NODE_CONFIGURATION
@@ -89,7 +81,7 @@ sudo yum -y install amazon-cloudwatch-agent
 echo "Configure Cloudwatch Agent"
 sudo mkdir -p /opt/aws/amazon-cloudwatch-agent/etc/
 cp $CONFIG_DIR/cw-agent.json /opt/aws/amazon-cloudwatch-agent/etc/custom-amazon-cloudwatch-agent.json
-# TODO: Publish prometheus metrics as well.
+# TODO: Publish prometheus metrics as well. We should update the dashboard template in tandem.
 
 echo "Starting CloudWatch Agent"
 amazon-cloudwatch-agent-ctl -a fetch-config -c file:/opt/aws/amazon-cloudwatch-agent/etc/custom-amazon-cloudwatch-agent.json -m ec2 -s
@@ -103,11 +95,12 @@ sudo usermod -aG wheel stacks
 sudo passwd -d stacks # No password.
 
 # Configure CloudFormation helper scripts. -------------------------------------
+# Note: This needs to be set up before the volumes will be picked up.
 sudo mkdir -p /etc/cfn/hooks.d/
 if [[ "$STACK_ID" != "none" ]]; then
   echo "Configuring CloudFormation helper scripts"
   sudo envsubst < $CLOUD_ASSETS_PATH/cfn-hup/cfn-hup.conf > /etc/cfn/cfn-hup.conf
-  sudo envsubst < $CLOUD_ASSETS_PATH/cfn-hup/cfn-auto-reloader.conf > /etc/cfn/cfn-auto-reloader.conf
+  sudo envsubst < $CLOUD_ASSETS_PATH/cfn-hup/cfn-auto-reloader.conf > /etc/cfn/hooks.d/cfn-auto-reloader.conf
 
   echo "Starting CloudFormation helper scripts as a service"
   cp $CLOUD_ASSETS_PATH/cfn-hup/cfn-hup.service  /etc/systemd/system/cfn-hup.service
@@ -119,13 +112,11 @@ if [[ "$STACK_ID" != "none" ]]; then
   cfn-signal --stack $STACK_NAME --resource $RESOURCE_ID --region $AWS_REGION
 fi
 
-# Start set up volumes -----------------------------------------------------------
-
+# Set up volumes -----------------------------------------------------------------
 echo "Waiting for volumes to be available"
 sleep 60
 
 sudo mkdir -p $DATA_VOLUME_PATH
-sudo mkdir -p $ASSETS_VOLUME_PATH
 
 if [[ "$DATA_VOLUME_TYPE" == "instance-store" ]]; then
   echo "Data volume type is instance store"
@@ -135,7 +126,7 @@ if [[ "$DATA_VOLUME_TYPE" == "instance-store" ]]; then
   (crontab -l; echo "@reboot $CLOUD_ASSETS_PATH/setup-instance-store-volumes.sh > /tmp/setup-instance-store-volumes.log 2>&1") | crontab -
   crontab -l
 
-  sudo /opt/setup-instance-store-volumes.sh
+  sudo $CLOUD_ASSETS_PATH/setup-instance-store-volumes.sh
 
 else
   echo "Data volume type is EBS"
@@ -152,46 +143,8 @@ else
   sudo mount -a
 fi
 
-if [[ "$ASSETS_VOLUME_TYPE" == "instance-store" ]]; then
-  echo "Assets volume type is instance store"
-
-  if [[ "$DATA_VOLUME_TYPE" != "instance-store" ]]; then
-    cd /opt
-
-    sudo chmod +x /opt/setup-instance-store-volumes.sh
-
-    (crontab -l; echo "@reboot $CLOUD_ASSETS_PATH/setup-instance-store-volumes.sh > /tmp/setup-instance-store-volumes.log 2>&1") | crontab -
-    crontab -l
-
-    sudo /opt/setup-instance-store-volumes.sh
-
-  else
-    echo "Data and Assets volumes are instance stores and should be both configured by now"
-  fi
-
-else
-  echo "Assets volume type is EBS"
-  ASSETS_VOLUME_ID=/dev/$(lsblk -lnb | awk -v VOLUME_SIZE_BYTES="$ASSETS_VOLUME_SIZE" '{if ($4== VOLUME_SIZE_BYTES) {print $1}}')
-  sudo mkfs -t xfs $ASSETS_VOLUME_ID
-  sleep 10
-  ASSETS_VOLUME_UUID=$(lsblk -fn -o UUID $ASSETS_VOLUME_ID)
-  ASSETS_VOLUME_FSTAB_CONF="UUID=$ASSETS_VOLUME_UUID $ASSETS_VOLUME_PATH xfs defaults 0 2"
-  echo "ASSETS_VOLUME_ID="$ASSETS_VOLUME_ID
-  echo "ASSETS_VOLUME_UUID="$ASSETS_VOLUME_UUID
-  echo "ASSETS_VOLUME_FSTAB_CONF="$ASSETS_VOLUME_FSTAB_CONF
-  echo $ASSETS_VOLUME_FSTAB_CONF | sudo tee -a /etc/fstab
-
-  sudo mount -a
-fi
-
-# Setup directories within the volume
-sudo mkdir -p $ASSETS_VOLUME_PATH/log
-sudo mkdir -p $ASSETS_VOLUME_PATH/src
-sudo mkdir -p $ASSETS_VOLUME_PATH/bin
-
 # Ensure proper ownership of the directories
 sudo chown -R stacks:stacks $DATA_VOLUME_PATH
-sudo chown -R stacks:stacks $ASSETS_VOLUME_PATH
 
 # Show the final state of the drives
 lsblk
@@ -211,49 +164,49 @@ lsblk
 ) &
 
 (
-  # Build binaries into $ASSETS_VOLUME_PATH/bin
   exec >> /node.sh.build.log
   exec 2>> /node.sh.build.elog
-
-  cd $ASSETS_VOLUME_PATH
+  # build-binaries.sh will ensure that the working directory the script is called from
+  # has a ./src and a ./bin directory and will populate the ./src with the source code
+  # and the ./bin with the compiled binaries.
+  cd /usr/local
   $CLOUD_ASSETS_PATH/build-binaries.sh
-  mv $ASSETS_VOLUME_PATH/src/bin $ASSETS_VOLUME_PATH
 ) &
 
 wait # Wait for both background processes to finish
 
 # No new directories are made at this point; ensure that the stacks
 # user has all necessary permissions.
-
-# sudo chown -R stacks:stacks /var/stacks/
+sudo mkdir -p /var/log/stacks/
 sudo chown -R stacks:stacks /var/log/stacks/
-sudo chown -R stacks:stacks /var/log/stacks/
+sudo chown -R stacks:stacks /etc/stacks/
 sudo chown -R stacks:stacks /var/lib/stacks/
 
-# Setup stacks as a service
-echo "Setup stacks as a service"
+# Setup stacks as a service.
+echo "Seting up stacks as a service."
 sudo cp $CLOUD_ASSETS_PATH/stacks.service /etc/systemd/system/stacks.service
 sudo systemctl daemon-reload
 sudo systemctl enable --now stacks
 
-echo 'Configuring logrotate to rotate Stacks logs'
-# TODO: use the env variable $ASSETS_VOLUME_PATH to set where the logs are
+# Configure logrotate to rotate stacks logs.
+echo 'Configuring logrotate to rotate Stacks logs.'
 sudo cp $CLOUD_ASSETS_PATH/stacks.logrotate /etc/logrotate.d/stacks
 sudo systemctl restart logrotate.service
 
-# echo "Configuring syncchecker script"
-# cd /opt
-# sudo mv /opt/sync-checker/syncchecker-stacks.sh /opt/syncchecker.sh
-# sudo chmod +x /opt/syncchecker.sh
+# Configure syncchecker script.
+echo "Configuring syncchecker script."
+sudo cp $CLOUD_ASSETS_PATH/sync-checker/syncchecker-stacks.sh /usr/local/bin/syncchecker.sh
+sudo chmod +x /usr/local/bin/syncchecker.sh
 
-# (crontab -l; echo "*/1 * * * * /opt/syncchecker.sh > /tmp/syncchecker.log 2>&1") | crontab -
-# crontab -l
+# Install cronie and set it to run the syncchecker every minute.
+echo "Installing cronie and setting it to run the syncchecker every minute."
+sudo yum -y install cronie
+sudo systemctl enable crond
+sudo systemctl start crond
+(crontab -l; echo "*/1 * * * * /usr/local/bin/syncchecker.sh > /tmp/syncchecker.log 2>&1") | crontab -
+crontab -l
 
-# if [[ "$LIFECYCLE_HOOK_NAME" != "none" ]]; then
-#   echo "Signaling ASG lifecycle hook to complete"
-#   TOKEN=$(curl -s -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
-#   INSTANCE_ID=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -s http://169.254.169.254/latest/meta-data/instance-id)
-#   aws autoscaling complete-lifecycle-action --lifecycle-action-result CONTINUE --instance-id $INSTANCE_ID --lifecycle-hook-name "$LIFECYCLE_HOOK_NAME" --auto-scaling-group-name "$ASG_NAME"  --region $AWS_REGION
-# fi
+# TODO: For the high availability option add the lifecycle hook to report setup completion.
+# An example is in the Solana node.
 
 echo "All Done!!"

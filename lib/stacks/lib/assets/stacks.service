@@ -11,7 +11,7 @@ ConditionPathExists=/etc/stacks/stacks.toml
 ConditionPathIsDirectory=/var/lib/stacks
 
 [Service]
-ExecStart=/var/stacks/bin/stacks-node start --config /etc/stacks/stacks.toml
+ExecStart=/usr/local/bin/stacks-node start --config /etc/stacks/stacks.toml
 StandardOutput=append:/var/log/stacks/stacks.log
 StandardError=inherit
 

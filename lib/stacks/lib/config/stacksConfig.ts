@@ -59,14 +59,6 @@ export const baseNodeConfig: configTypes.StacksBaseNodeConfig = {
         iops: process.env.STACKS_DATA_VOL_IOPS ? parseInt(process.env.STACKS_DATA_VOL_IOPS) : defaults.dataVolume.iops,
         throughput: process.env.STACKS_DATA_VOL_THROUGHPUT ? parseInt(process.env.STACKS_DATA_VOL_THROUGHPUT) : defaults.dataVolume.throughput,
     },
-    
-    assetsVolume: {
-        sizeGiB: process.env.STACKS_ASSETS_VOL_SIZE ? parseInt(process.env.STACKS_ASSETS_VOL_SIZE) : defaults.assetsVolume.sizeGiB,
-        type: process.env.STACKS_ASSETS_VOL_TYPE ? parseDataVolumeType(process.env.STACKS_ASSETS_VOL_TYPE?.toLowerCase()) : defaults.assetsVolume.type,
-        iops: process.env.STACKS_ASSETS_VOL_IOPS ? parseInt(process.env.STACKS_ASSETS_VOL_IOPS) : defaults.assetsVolume.iops,
-        throughput: process.env.STACKS_ASSETS_VOL_THROUGHPUT ? parseInt(process.env.STACKS_ASSETS_VOL_THROUGHPUT) : defaults.assetsVolume.throughput,
-    }
-
 };
 
 export const haNodeConfig: configTypes.StacksHAConfig = {

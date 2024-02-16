@@ -13,13 +13,6 @@ export function stacksNodeConfigDefaults(
         throughput: 700
     }
 
-    const defaultAssetsVolume: configTypes.StacksVolumeConfig = {
-        sizeGiB: 64,
-        type: ec2.EbsDeviceVolumeType.GP3,
-        iops: 12000,
-        throughput: 700
-    }
-
     const defaultInstanceType: string = stacksNodeConfiguration === "signer"
         ? "c4.4xlarge"
         : "m5.large";
@@ -60,6 +53,5 @@ export function stacksNodeConfigDefaults(
         stacksSignerSecretArn: "none",
         stacksMinerSecretArn: "none",
         dataVolume: defaultDataVolume,
-        assetsVolume: defaultAssetsVolume,
     };
 }

@@ -51,7 +51,6 @@ export class StacksSingleNodeStack extends cdk.Stack {
             stacksSignerSecretArn,
             stacksMinerSecretArn,
             dataVolume,
-            assetsVolume,
         } = props;
 
         // Using default VPC
@@ -83,7 +82,7 @@ export class StacksSingleNodeStack extends cdk.Stack {
         const node = new SingleNodeConstruct(this, "sync-node", {
             instanceName: STACK_NAME,
             instanceType,
-            dataVolumes: [dataVolume, assetsVolume],
+            dataVolumes: [dataVolume],
             rootDataVolumeDeviceName: "/dev/xvda",
             machineImage: ec2.MachineImage.latestAmazonLinux2023(),
             vpc,
@@ -98,7 +97,6 @@ export class StacksSingleNodeStack extends cdk.Stack {
         // Parsing user data script and injecting necessary variables
         const nodeStartScript = fs.readFileSync(path.join(__dirname, "assets", "user-data", "node.sh")).toString();
         const dataVolumeSizeBytes = dataVolume.sizeGiB * constants.GibibytesToBytesConversionCoefficient;
-        const assetsVolumeSizeBytes = assetsVolume.sizeGiB * constants.GibibytesToBytesConversionCoefficient;
 
         const modifiedInitNodeScript = cdk.Fn.sub(nodeStartScript, {
             _AWS_REGION_: REGION,
@@ -125,8 +123,6 @@ export class StacksSingleNodeStack extends cdk.Stack {
 
             _DATA_VOLUME_TYPE_: dataVolume.type,
             _DATA_VOLUME_SIZE_: dataVolumeSizeBytes.toString(),
-            _ASSETS_VOLUME_TYPE_: assetsVolume.type,
-            _ASSETS_VOLUME_SIZE_: assetsVolumeSizeBytes.toString(),
 
             _ASSETS_S3_PATH_: `s3://${asset.s3BucketName}/${asset.s3ObjectKey}`,
             _LIFECYCLE_HOOK_NAME_: constants.NoneValue,
@@ -136,7 +132,7 @@ export class StacksSingleNodeStack extends cdk.Stack {
 
         // Adding CloudWatch dashboard to the node
         const dashboardString = cdk.Fn.sub(JSON.stringify(nodeCwDashboard.SingleNodeCWDashboardJSON), {
-            INSTANCE_ID:node.instanceId,
+            INSTANCE_ID: node.instanceId,
             INSTANCE_NAME: STACK_NAME,
             REGION: REGION,
         })

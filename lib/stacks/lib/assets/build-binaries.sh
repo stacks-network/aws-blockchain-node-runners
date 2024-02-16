@@ -15,8 +15,8 @@ sudo yum -y install clang llvm git
 mkdir -p src && cd src
 
 if [ -z "$HOME" ]; then
-  # Set $HOME to /root. $HOME isn't set to be /root
-  # when this script first runs on the host.
+  # Set $HOME to /root. $HOME isn't set to be /root when this
+  # script first runs on the host.
   export HOME="/root"
   echo "HOME is not set. Setting it to /root."
 fi
@@ -32,6 +32,7 @@ rustup update
 
 export RUST_STABLE_VERSION=$(rustc --version | awk '{print $2}')
 
+# Get tag for the latest version.
 echo "Getting the source for stable version $STACKS_VERSION"
 if [[ "$STACKS_VERSION" == "latest" ]]; then
   echo "Aquiring tag for latest stable release."

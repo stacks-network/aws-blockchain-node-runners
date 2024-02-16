@@ -28,7 +28,6 @@ export interface StacksBaseNodeConfig extends StacksNetworkConfig, configTypes.B
     stacksSignerSecretArn: string;
     stacksMinerSecretArn: string;
     dataVolume: StacksVolumeConfig;
-    assetsVolume: StacksVolumeConfig;
 }
 
 export interface StacksHAConfig {
