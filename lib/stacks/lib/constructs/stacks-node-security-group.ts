@@ -27,8 +27,6 @@ export interface StacksNodeSecurityGroupConstructProps {
       sg.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcpRange(8800, 8814), "P2P protocols (gossip, turbine, repair, etc)");
       sg.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.udpRange(8800, 8814), "P2P protocols (gossip, turbine, repair, etc)");
 
-      // Add SSH ingress rule - allows SSH access from any IPv4 address
-      // sg.addIngressRule(ec2.Peer.anyIpv4(), ec2.Port.tcp(22), "SSH access");
 
       // Private ports restricted only to the VPC IP range
       sg.addIngressRule(ec2.Peer.ipv4(vpc.vpcCidrBlock), ec2.Port.tcp(8899), "RPC port HTTP (user access needs to be restricted. Allowed access only from internal IPs)");

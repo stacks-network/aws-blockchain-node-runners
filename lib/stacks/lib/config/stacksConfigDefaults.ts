@@ -1,6 +1,9 @@
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as configTypes from "./stacksConfig.interface";
 
+export const DEFAULT_STACKS_NETWORK: configTypes.StacksNetwork = "mainnet";
+export const DEFAULT_STACKS_NODE_CONFIGURATION: configTypes.StacksNodeConfiguration = "follower";
+
 export function stacksNodeConfigDefaults(
     stacksNetwork: configTypes.StacksNetwork,
     stacksNodeConfiguration: configTypes.StacksNodeConfiguration
@@ -13,10 +16,14 @@ export function stacksNodeConfigDefaults(
         throughput: 700
     }
 
+    // In the case of the signer a larger instance type may be required.
+    // TODO: Benchmark the signing performance under different instance types.
     const defaultInstanceType: string = stacksNodeConfiguration === "signer"
         ? "c4.4xlarge"
         : "m5.large";
 
+    // Generate deatult configurations based on recommended parameters in
+    // https://docs.stacks.co/stacks-in-depth/nodes-and-miners.
     const defaultStacksNetworkConfig: configTypes.StacksNetworkConfig = stacksNetwork === "mainnet"
         ? {
             stacksNetwork: "mainnet",
@@ -42,7 +49,6 @@ export function stacksNodeConfigDefaults(
             bitcoinP2pPort: 18333,
             bitcoinRpcPort: 18332,
         }
-
 
     return {
         ...defaultStacksNetworkConfig,

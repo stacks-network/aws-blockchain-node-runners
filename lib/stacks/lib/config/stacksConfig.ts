@@ -2,7 +2,7 @@ import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as configTypes from "./stacksConfig.interface";
 import * as constants from "../../../constructs/constants";
 import "./stacksConfigDefaults";
-import { stacksNodeConfigDefaults } from "./stacksConfigDefaults";
+import { DEFAULT_STACKS_NETWORK, DEFAULT_STACKS_NODE_CONFIGURATION, stacksNodeConfigDefaults } from "./stacksConfigDefaults";
 
 const parseDataVolumeType = (dataVolumeType: string) => {
     switch (dataVolumeType) {
@@ -24,18 +24,19 @@ export const baseConfig: configTypes.StacksBaseConfig = {
     region: process.env.AWS_REGION || "us-east-2",
 }
 
+// Get configuration values for the parameters that determine the rest of the default values.
 const stacksNetwork: configTypes.StacksNetwork =
-    <configTypes.StacksNetwork> process.env.STACKS_CLUSTER || "mainnet";
+    <configTypes.StacksNetwork> process.env.STACKS_CLUSTER || DEFAULT_STACKS_NETWORK;
 const stacksNodeConfiguration: configTypes.StacksNodeConfiguration =
-    <configTypes.StacksNodeConfiguration> process.env.STACKS_NODE_CONFIGURATION || "follower";
+    <configTypes.StacksNodeConfiguration> process.env.STACKS_NODE_CONFIGURATION || DEFAULT_STACKS_NODE_CONFIGURATION;
 
-// Generate default config.
+// Generate default configurations based on the determining parameters.
 export const defaults: configTypes.StacksBaseNodeConfig = stacksNodeConfigDefaults(stacksNetwork, stacksNodeConfiguration);
 
+// Generate the node config from the defaults.
 export const baseNodeConfig: configTypes.StacksBaseNodeConfig = {
     instanceType: process.env.STACKS_INSTANCE_TYPE ? new ec2.InstanceType(process.env.STACKS_INSTANCE_TYPE) : defaults.instanceType,
     instanceCpuType: process.env.STACKS_CPU_TYPE?.toLowerCase() === "x86_64" ? ec2.AmazonLinuxCpuType.X86_64 : ec2.AmazonLinuxCpuType.ARM_64,
-
     stacksNetwork: stacksNetwork,
     stacksVersion: process.env.STACKS_VERSION || defaults.stacksVersion,
     stacksNodeConfiguration: <configTypes.StacksNodeConfiguration> process.env.STACKS_NODE_CONFIGURATION || defaults.stacksNodeConfiguration,
@@ -43,16 +44,13 @@ export const baseNodeConfig: configTypes.StacksBaseNodeConfig = {
     stacksChainstateArchive: process.env.STACKS_CHAINSTATE_ARCHIVE || defaults.stacksChainstateArchive,
     stacksP2pPort: process.env.STACKS_P2P_PORT ? parseInt(process.env.STACKS_P2P_PORT) : defaults.stacksP2pPort,
     stacksRpcPort: process.env.STACKS_RPC_PORT ? parseInt(process.env.STACKS_RPC_PORT) : defaults.stacksRpcPort,
-
     bitcoinPeerHost: process.env.BITCOIN_PEER_HOST || defaults.bitcoinPeerHost,
     bitcoinRpcUsername: process.env.BITCOIN_RPC_USERNAME || defaults.bitcoinRpcUsername,
     bitcoinRpcPassword: process.env.BITCOIN_RPC_USERNAME || defaults.bitcoinRpcPassword,
     bitcoinRpcPort: process.env.BITCOIN_RPC_PORT ? parseInt(process.env.BITCOIN_RPC_PORT) : defaults.bitcoinRpcPort,
     bitcoinP2pPort: process.env.BITCOIN_P2P_PORT ? parseInt(process.env.BITCOIN_P2P_PORT) : defaults.bitcoinP2pPort,
-
     stacksSignerSecretArn: process.env.STACKS_SIGNER_SECRET_ARN || defaults.stacksSignerSecretArn,
     stacksMinerSecretArn: process.env.STACKS_MINER_SECRET_ARN || defaults.stacksMinerSecretArn,
-
     dataVolume: {
         sizeGiB: process.env.STACKS_DATA_VOL_SIZE ? parseInt(process.env.STACKS_DATA_VOL_SIZE) : defaults.dataVolume.sizeGiB,
         type: process.env.STACKS_DATA_VOL_TYPE ? parseDataVolumeType(process.env.STACKS_DATA_VOL_TYPE?.toLowerCase()) : defaults.dataVolume.type,

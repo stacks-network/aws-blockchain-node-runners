@@ -14,7 +14,6 @@ import * as constants from "../../constructs/constants";
 import { StacksNodeSecurityGroupConstruct } from "./constructs/stacks-node-security-group"
 
 export interface StacksSingleNodeStackProps extends cdk.StackProps, configTypes.StacksBaseNodeConfig {
-
 }
 
 export class StacksSingleNodeStack extends cdk.Stack {
@@ -74,9 +73,8 @@ export class StacksSingleNodeStack extends cdk.Stack {
         // Making sure our instance will be able to read the assets
         asset.bucket.grantRead(instanceRole);
 
-        // Setting up the node using generic Single Node constract
-        if (instanceCpuType === ec2.AmazonLinuxCpuType.ARM_64) {
-            throw new Error("ARM_64 is not yet supported");
+        if (stacksNodeConfiguration === "miner" || stacksNodeConfiguration === "signer") {
+            throw new Error(`{stacksNodeConfiguration} node configuration is not yet supported.`);
         }
 
         const node = new SingleNodeConstruct(this, "sync-node", {
@@ -105,25 +103,20 @@ export class StacksSingleNodeStack extends cdk.Stack {
             _NODE_CF_LOGICAL_ID_: node.nodeCFLogicalId,
             _STACKS_VERSION_: stacksVersion,
             _STACKS_NODE_CONFIGURATION_: stacksNodeConfiguration,
-
             _STACKS_NETWORK_: stacksNetwork,
             _STACKS_BOOTSTRAP_NODE_: stacksBootstrapNode,
             _STACKS_CHAINSTATE_ARCHIVE_: stacksChainstateArchive,
             _STACKS_P2P_PORT_: stacksP2pPort.toString(),
             _STACKS_RPC_PORT_: stacksRpcPort.toString(),
-
             _BITCOIN_PEER_HOST_: bitcoinPeerHost,
             _BITCOIN_RPC_USERNAME_: bitcoinRpcUsername,
             _BITCOIN_RPC_PASSWORD_: bitcoinRpcPassword,
             _BITCOIN_P2P_PORT_: bitcoinP2pPort.toString(),
             _BITCOIN_RPC_PORT_: bitcoinRpcPort.toString(),
-
             _STACKS_SIGNER_SECRET_ARN_: stacksSignerSecretArn,
             _STACKS_MINER_SECRET_ARN_: stacksMinerSecretArn,
-
             _DATA_VOLUME_TYPE_: dataVolume.type,
             _DATA_VOLUME_SIZE_: dataVolumeSizeBytes.toString(),
-
             _ASSETS_S3_PATH_: `s3://${asset.s3BucketName}/${asset.s3ObjectKey}`,
             _LIFECYCLE_HOOK_NAME_: constants.NoneValue,
             _ASG_NAME_: constants.NoneValue,
