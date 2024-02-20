@@ -26,7 +26,7 @@ export const baseConfig: configTypes.StacksBaseConfig = {
 
 // Get configuration values for the parameters that determine the rest of the default values.
 const stacksNetwork: configTypes.StacksNetwork =
-    <configTypes.StacksNetwork> process.env.STACKS_CLUSTER || DEFAULT_STACKS_NETWORK;
+    <configTypes.StacksNetwork> process.env.STACKS_NETWORK || DEFAULT_STACKS_NETWORK;
 const stacksNodeConfiguration: configTypes.StacksNodeConfiguration =
     <configTypes.StacksNodeConfiguration> process.env.STACKS_NODE_CONFIGURATION || DEFAULT_STACKS_NODE_CONFIGURATION;
 
@@ -46,7 +46,7 @@ export const baseNodeConfig: configTypes.StacksBaseNodeConfig = {
     stacksRpcPort: process.env.STACKS_RPC_PORT ? parseInt(process.env.STACKS_RPC_PORT) : defaults.stacksRpcPort,
     bitcoinPeerHost: process.env.BITCOIN_PEER_HOST || defaults.bitcoinPeerHost,
     bitcoinRpcUsername: process.env.BITCOIN_RPC_USERNAME || defaults.bitcoinRpcUsername,
-    bitcoinRpcPassword: process.env.BITCOIN_RPC_USERNAME || defaults.bitcoinRpcPassword,
+    bitcoinRpcPassword: process.env.BITCOIN_RPC_PASSWORD || defaults.bitcoinRpcPassword,
     bitcoinRpcPort: process.env.BITCOIN_RPC_PORT ? parseInt(process.env.BITCOIN_RPC_PORT) : defaults.bitcoinRpcPort,
     bitcoinP2pPort: process.env.BITCOIN_P2P_PORT ? parseInt(process.env.BITCOIN_P2P_PORT) : defaults.bitcoinP2pPort,
     stacksSignerSecretArn: process.env.STACKS_SIGNER_SECRET_ARN || defaults.stacksSignerSecretArn,

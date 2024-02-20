@@ -31,7 +31,6 @@ export class StacksSingleNodeStack extends cdk.Stack {
         const {
             // Instance configuration
             instanceType,
-            instanceCpuType,
             stacksNetwork,
             stacksVersion,
             stacksNodeConfiguration,
@@ -58,6 +57,7 @@ export class StacksSingleNodeStack extends cdk.Stack {
         // Setting up the security group for the node from Stacks-specific construct
         const instanceSG = new StacksNodeSecurityGroupConstruct (this, "security-group", {
             vpc: vpc,
+            stacksRpcPort: stacksRpcPort,
         })
 
         // Making our scripts and configis from the local "assets" directory available for instance to download
