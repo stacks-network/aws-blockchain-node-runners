@@ -151,7 +151,7 @@ lsblk
   # Impropperly using the data volume path temporarily because it will have the
   # space required to store the compressed chainstate.
   sudo mkdir -p $DATA_VOLUME_PATH/tmp
-  wget $STACKS_CHAINSTATE_ARCHIVE \
+  wget -q $STACKS_CHAINSTATE_ARCHIVE \
     -O $DATA_VOLUME_PATH/tmp/chainstate.tar.gz
   tar -vxf $DATA_VOLUME_PATH/tmp/chainstate.tar.gz \
     -C $DATA_VOLUME_PATH
